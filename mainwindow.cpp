@@ -65,5 +65,10 @@ void MainWindow::keyReleaseEvent(QKeyEvent *e)
 
 void MainWindow::on_pushButton_clicked()
 {
+    if(control)
+    {
+        qDebug()<<"controling";
+        return;
+    }
     tryconnect();
 }

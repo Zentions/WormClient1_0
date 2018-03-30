@@ -7,7 +7,7 @@
 
 #include "consts.h"
 #include "algo.h"
-
+#include "values.h"
 class CmdThread : public QObject
 {
     Q_OBJECT

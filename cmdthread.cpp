@@ -67,6 +67,7 @@ void CmdThread::connectError(QAbstractSocket::SocketError)
     //QThread::msleep(200);
     cmdSocket->abort();
     cmdSocket->close();
+    control = false;
     connectToServer();
 }
 
@@ -74,6 +75,7 @@ void CmdThread::connectSucceed()
 {
     qDebug()<<"connect succeed";
     socketConnected = true;
+    control = true;
 }
 
 void CmdThread::cmdMouseMoveTo(int x, int y)

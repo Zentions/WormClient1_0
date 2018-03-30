@@ -2,7 +2,7 @@
 
 
 
-bool control = true;
+bool control = false;
 
 QString addr;
 int rq_width = 1001;
