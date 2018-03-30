@@ -78,7 +78,7 @@ void CmdThread::connectSucceed()
 
 void CmdThread::cmdMouseMoveTo(int x, int y)
 {
-    //qDebug()<<"mouse move to";
+    qDebug()<<"mouse move to";
     if(socketConnected == false)
         return;
     uchar uc[8];

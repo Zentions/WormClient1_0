@@ -17,7 +17,8 @@ SOURCES += main.cpp\
     cmdthread.cpp \
     mapthread.cpp \
     values.cpp \
-    mapthread.cpp
+    scanner.cpp \
+    controlpanel.cpp
 
 HEADERS  += mainwindow.h \
     algo.h \
@@ -25,6 +26,7 @@ HEADERS  += mainwindow.h \
     consts.h \
     mapthread.h \
     values.h \
-    mapthread.h
+    scanner.h \
+    controlpanel.h
 
 FORMS    += mainwindow.ui
