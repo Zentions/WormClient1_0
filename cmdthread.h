@@ -15,19 +15,19 @@ private:
     QTcpSocket* cmdSocket;
     QString     address;
     int         port;
-    bool socketConnected;
 
     uchar cmd_buf[8];
     int   cmd_buf_fill;
+    int errorNum;
 public:
     CmdThread(QString add, int p, QObject* parent = 0);
     void connectToServer();
     void reconnectToServer();
-
+    void setIPandPort(QString add, int p);
 
 signals:
     void setServerScreenSize(int, int);
-
+    void notOnline();
 public slots:
     void connectError(QAbstractSocket::SocketError);
     void connectSucceed();
@@ -45,7 +45,7 @@ public slots:
     void cmdKeyPress(uchar key);
     void cmdKeyRelease(uchar key);
 
-
+    void noRun();
     void run();
 
 };

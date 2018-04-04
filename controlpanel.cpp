@@ -1,7 +1,7 @@
 #include "controlpanel.h"
 #include "mainwindow.h"
 #include "values.h"
-
+#include <QMessageBox>
 ControlPanel::ControlPanel(QWidget *parent)
     : QWidget(parent)
 {
@@ -11,23 +11,31 @@ ControlPanel::ControlPanel(QWidget *parent)
     image = new QImage("C:\\Users\\q\\Desktop\\paint\\1.bmp");
     frame_width  = 1000;
     frame_height = 600;
-//    mapThread = new MapThread();
-//    connect(mapThread, SIGNAL(frameGot(QImage*)), this, SLOT(frameChanged(QImage*)));
-//    connect(mapThread, SIGNAL(frameSizeChanged(int,int)), this, SLOT(changeFrameSize(int,int)));
-//    mapThread->start();
+    mapThread = new MapThread();
+    connect(mapThread, SIGNAL(sigRecvOk(char *, int)), this, SLOT(frameChanged(char *, int)));
+    mapThread->start();
 
 }
 void ControlPanel::startConnect()
 {
     cmdThread = new CmdThread(addr, 5649);
+    connect(cmdThread, SIGNAL(notOnline()), this, SLOT(notOnlineError()));
+   // else cmdThread->setIPandPort(addr,5649);
     connect(cmdThread, SIGNAL(setServerScreenSize(int,int)), this, SLOT(gotServerScreenSize(int,int)));
     cmdThread->run();
+}
+void ControlPanel::notOnlineError()
+{
+    QMessageBox::information(this,"error","目标主机连接出错");
 }
 ControlPanel::~ControlPanel()
 {
 
 }
-
+void ControlPanel::endConnect()
+{
+    cmdThread->noRun();
+}
 
 
 void ControlPanel::wheelEvent(QWheelEvent *e)
@@ -244,9 +252,9 @@ void ControlPanel::mouseReleaseEvent(QMouseEvent *e)
         cmdThread->cmdMouseRightUp(x, y);
     }
 }
-void ControlPanel::frameChanged(QImage* i)
+void ControlPanel::frameChanged(char *buf, int len)
 {
-    image = i;
+    image->loadFromData((uchar*)buf, len, "JPG");;
     update();
 }
 

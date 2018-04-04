@@ -29,6 +29,7 @@ public:
 signals:
     void keyPressed(QKeyEvent *);
     void keyReleased(QKeyEvent *);
+
 //    void mouseMove(QMouseEvent *);
 //    void mouseDoubleClick(QMouseEvent *);
 //    void mousePress(QMouseEvent *);
@@ -44,7 +45,8 @@ protected:
 //    void mousePressEvent(QMouseEvent *);
 //    void mouseReleaseEvent(QMouseEvent *);
 private slots:
-    void on_pushButton_clicked();
+    void on_conButton_clicked();
+    void on_disConButton_clicked();
 };
 
 #endif // MAINWINDOW_H

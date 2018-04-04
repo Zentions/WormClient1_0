@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     controlPanel = new ControlPanel(ui->centralWidget);
     setObjectName(QStringLiteral("controlPanel"));
+    ui->disConButton->setEnabled(false);
     controlPanel->setGeometry(QRect(260, 40, 1000, 600));
 }
 
@@ -63,12 +64,23 @@ void MainWindow::keyReleaseEvent(QKeyEvent *e)
 //}
 
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_conButton_clicked()
 {
     if(control)
     {
         qDebug()<<"controling";
         return;
     }
+    ui->conButton->setEnabled(false);
+    ui->disConButton->setEnabled(true);
+
     tryconnect();
+
+}
+
+void MainWindow::on_disConButton_clicked()
+{
+    controlPanel->endConnect();
+    ui->conButton->setEnabled(true);
+    ui->disConButton->setEnabled(false);
 }

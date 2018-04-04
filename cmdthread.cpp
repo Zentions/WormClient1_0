@@ -4,22 +4,28 @@ CmdThread::CmdThread(QString add, int p, QObject* parent) : QObject(parent)
 {
     address = add;
     port = p;
-    socketConnected = false;
+    control=false;
+    cmd_buf_fill = 0;
+    errorNum = 0;
+}
+void CmdThread::setIPandPort(QString add, int p)
+{
+    this->address=add;
+    this->port=p;
+    control=false;
     cmd_buf_fill = 0;
 }
-
 void CmdThread::run()
 {
     qRegisterMetaType<QAbstractSocket::SocketError>("SocketError");
     cmdSocket = new QTcpSocket;
-
     connect(cmdSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(connectError(QAbstractSocket::SocketError)));
     connect(cmdSocket, SIGNAL(connected()), this, SLOT(connectSucceed()));
     connect(cmdSocket, SIGNAL(readyRead()), this, SLOT(newData()));
 
     connectToServer();
     cmdSocket->waitForConnected();
-    cmdScreenSize();
+    if(control) cmdScreenSize();
 }
 
 void CmdThread::newData()
@@ -68,20 +74,27 @@ void CmdThread::connectError(QAbstractSocket::SocketError)
     cmdSocket->abort();
     cmdSocket->close();
     control = false;
-    connectToServer();
+    errorNum++;
+    if(errorNum<2) connectToServer();
+    else emit notOnline();
 }
-
+void CmdThread::noRun()
+{
+    cmdSocket->abort();
+    cmdSocket->close();
+    control = false;
+}
 void CmdThread::connectSucceed()
 {
     qDebug()<<"connect succeed";
-    socketConnected = true;
     control = true;
+    errorNum = 0;
 }
 
 void CmdThread::cmdMouseMoveTo(int x, int y)
 {
     qDebug()<<"mouse move to";
-    if(socketConnected == false)
+    if(control == false)
         return;
     uchar uc[8];
     uc[0] = CMD_MOUSE_MOVE_TO;

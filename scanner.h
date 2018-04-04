@@ -1,9 +1,12 @@
 #ifndef SCANNER_H
 #define SCANNER_H
-
-
-class Scanner
+#include <QVector>
+#include <QThread>
+class Scanner:public QThread
 {
+private:
+    QVector<QString>* ipVec;
+
 public:
     Scanner();
 };

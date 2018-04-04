@@ -34,20 +34,17 @@ public:
     ControlPanel(QWidget *parent = 0);
     ~ControlPanel();
     void startConnect();
+    void endConnect();
 signals:
     void mouseMoveTo(int, int);
 
 public slots:
-    void frameChanged(QImage*);
+    void frameChanged(char *buf, int len);
     void changeFrameSize(int, int);
     void gotServerScreenSize(int, int);
-
+    void notOnlineError();
     void keyPressSlot(QKeyEvent *);
     void keyReleaseSlot(QKeyEvent *);
-//    void mouseMoveSlot(QMouseEvent *);
-//    void mouseDoubleClickSlot(QMouseEvent *);
-//    void mousePressSlot(QMouseEvent *);
-//    void mouseReleaseSlot(QMouseEvent *);
 
 protected:
     void paintEvent(QPaintEvent *);
