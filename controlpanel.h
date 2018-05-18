@@ -45,7 +45,7 @@ public slots:
     void notOnlineError();
     void keyPressSlot(QKeyEvent *);
     void keyReleaseSlot(QKeyEvent *);
-
+    void totalTimeSlot(int);
 protected:
     void paintEvent(QPaintEvent *);
     void wheelEvent(QWheelEvent *);

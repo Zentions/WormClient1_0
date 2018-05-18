@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "QDebug"
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -10,6 +11,11 @@ MainWindow::MainWindow(QWidget *parent) :
     setObjectName(QStringLiteral("controlPanel"));
     ui->disConButton->setEnabled(false);
     controlPanel->setGeometry(QRect(260, 40, 1000, 600));
+    scan = NULL;
+    ui->lineEdit->setEnabled(false);
+    parentTree = new QTreeWidgetItem(ui->treeWidget);
+    parentTree->setText(0,"IP address");    //树形控件显示的文本信息
+    connect(ui->treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*,int)),this,SLOT(treeItemChanged(QTreeWidgetItem*,int)));
 }
 
 MainWindow::~MainWindow()
@@ -29,10 +35,6 @@ void MainWindow::tryconnect()
     //this->setCentralWidget(controlPanel);
     connect(this, SIGNAL(keyPressed(QKeyEvent*)), controlPanel, SLOT(keyPressSlot(QKeyEvent*)));
     connect(this, SIGNAL(keyReleased(QKeyEvent*)), controlPanel, SLOT(keyReleaseSlot(QKeyEvent*)));
-//    connect(this, SIGNAL(mouseMove(QMouseEvent*)), controlPanel, SLOT(mouseMoveSlot(QMouseEvent*)));
-//    connect(this, SIGNAL(mouseDoubleClick(QMouseEvent*)), controlPanel, SLOT(mouseDoubleClickSlot(QMouseEvent*)));
-//    connect(this, SIGNAL(mousePress(QMouseEvent*)), controlPanel, SLOT(mousePressSlot(QMouseEvent*)));
-//    connect(this, SIGNAL(mouseRelease(QMouseEvent*)), controlPanel, SLOT(mouseReleaseSlot(QMouseEvent*)));
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *e)
@@ -44,24 +46,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *e)
 {
     emit keyReleased(e);
 }
-//void MainWindow::mouseMoveEvent(QMouseEvent *e)
-//{
 
-//    emit mouseMove(e);
-//}
-//void MainWindow::mouseDoubleClickEvent(QMouseEvent *e)
-//{
-//    emit mouseDoubleClick(e);
-//}
-//void MainWindow::mousePressEvent(QMouseEvent *e)
-//{
-//    qDebug()<<"mousePress";
-//    emit mousePress(e);
-//}
-//void MainWindow::mouseReleaseEvent(QMouseEvent *e)
-//{
-//    emit mouseRelease(e);
-//}
 
 
 void MainWindow::on_conButton_clicked()
@@ -83,4 +68,50 @@ void MainWindow::on_disConButton_clicked()
     controlPanel->endConnect();
     ui->conButton->setEnabled(true);
     ui->disConButton->setEnabled(false);
+}
+void MainWindow::receiveScanRec(QVector<QString>* ipVec)
+{
+    for(int i=0;i<ipVec->size();i++)
+    {
+        QTreeWidgetItem* subItem = new QTreeWidgetItem(parentTree);
+        subItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        subItem->setText(0,ipVec->at(i));
+        subItem->setCheckState(0,Qt::Unchecked);
+    }
+
+}
+void MainWindow::on_change_clicked()
+{
+    scan = new Scanner;
+    connect(scan, SIGNAL(finishScan(QVector<QString>*)), this, SLOT(receiveScanRec(QVector<QString>*)));
+    scan->start();
+}
+void MainWindow::treeItemChanged(QTreeWidgetItem* item,int value)
+{
+
+    if(Qt::Checked == item->checkState(0))
+    {
+       clearChildState(item,value);
+       QString ip = item->text(0);
+       ui->lineEdit->setText(ip);
+     }
+    else if(Qt::Unchecked == item->checkState(0))
+    {
+        int count = item->childCount();
+        if(count > 0){}
+        else
+        {
+            ui->lineEdit->clear();
+        }
+    }
+}
+void MainWindow::clearChildState(QTreeWidgetItem* item,int value)
+{
+    QTreeWidgetItem *parent = item->parent();
+    int count = parent->childCount();
+    for(int i=0;i<count;i++)
+    {
+        if(parent->child(i)!=item)
+        parent->child(i)->setCheckState(0,Qt::Unchecked);
+    }
 }

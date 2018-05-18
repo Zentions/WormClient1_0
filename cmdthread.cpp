@@ -1,5 +1,5 @@
 #include "cmdthread.h"
-
+#include <QDateTime>
 CmdThread::CmdThread(QString add, int p, QObject* parent) : QObject(parent)
 {
     address = add;
@@ -83,12 +83,18 @@ void CmdThread::noRun()
     cmdSocket->abort();
     cmdSocket->close();
     control = false;
+    QDateTime time = QDateTime::currentDateTime();   //获取当前时间
+    end = time.toTime_t();
+    emit totalTime(end-start);
 }
 void CmdThread::connectSucceed()
 {
     qDebug()<<"connect succeed";
     control = true;
     errorNum = 0;
+    QDateTime time = QDateTime::currentDateTime();   //获取当前时间
+    start = time.toTime_t();
+
 }
 
 void CmdThread::cmdMouseMoveTo(int x, int y)

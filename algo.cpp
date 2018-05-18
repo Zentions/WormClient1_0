@@ -6,7 +6,6 @@ void writeAndBlock(QTcpSocket* socket, uchar* buf, int len)
     int w;
     while(true)
     {
-        qDebug()<<"111111111";
         w = socket->write((char*)(buf + fill), len - fill);
         if(w > 0)
         {

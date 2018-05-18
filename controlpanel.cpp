@@ -21,6 +21,7 @@ void ControlPanel::startConnect()
     cmdThread = new CmdThread(addr, 5649);
     connect(cmdThread, SIGNAL(notOnline()), this, SLOT(notOnlineError()));
    // else cmdThread->setIPandPort(addr,5649);
+    connect(cmdThread, SIGNAL(totalTime(int)), this, SLOT(totalTimeSlot(int)));
     connect(cmdThread, SIGNAL(setServerScreenSize(int,int)), this, SLOT(gotServerScreenSize(int,int)));
     cmdThread->run();
 }
@@ -67,7 +68,17 @@ void ControlPanel::paintEvent(QPaintEvent *e)
     }
     QWidget::paintEvent(e);
 }
+void ControlPanel::totalTimeSlot(int total)
+{
+    int hour,minute,sec;
+    sec = total%60;
+    total /= 60;
+    minute = total%60;
+    total /= 60;
+    hour = total;
+    QMessageBox::information(this,"温馨提示","您使用了"+QString::number(hour)+"时"+QString::number(minute)+"分"+QString::number(sec)+"秒");
 
+}
 uchar ControlPanel::translateKey(int key)
 {
     int k = key;

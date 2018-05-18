@@ -2,6 +2,7 @@
 #define MAPTHREAD_H
 #include <QThread>
 #include <QUdpSocket>
+#include "values.h"
 struct ImageFrameHead {
     int funCode;                        //功能码
     unsigned int uTransFrameHdrSize;    //sizeof(WIFI_FRAME_HEADER)
@@ -18,7 +19,7 @@ class MapThread: public QThread
 {
      Q_OBJECT
 public:
-    explicit MapThread(QObject *parent = 0);
+    MapThread(QObject *parent = 0);
     ~MapThread();
 
 protected:

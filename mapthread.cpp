@@ -35,7 +35,7 @@ void MapThread::ReadData()
             memcpy(m_buf+mes->uDataInFrameOffset, (recvBuf+ sizeof(ImageFrameHead)), mes->uTransFrameSize);
             if (mes->uDataFrameCurr == mes->uDataFrameTotal) {
                 qDebug("write");
-                emit sigRecvOk(m_buf, mes->uDataFrameSize);
+                if(control)emit sigRecvOk(m_buf, mes->uDataFrameSize);
             }
         }
 

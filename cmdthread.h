@@ -28,6 +28,7 @@ public:
 signals:
     void setServerScreenSize(int, int);
     void notOnline();
+    void totalTime(int);
 public slots:
     void connectError(QAbstractSocket::SocketError);
     void connectSucceed();

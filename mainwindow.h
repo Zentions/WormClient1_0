@@ -7,10 +7,12 @@
 #include <QWheelEvent>
 #include <QKeyEvent>
 #include <QMainWindow>
+#include <QTreeWidgetItem>
 #include "mapthread.h"
 #include "cmdthread.h"
 #include "values.h"
 #include "controlpanel.h"
+#include "scanner.h"
 namespace Ui {
 class MainWindow;
 }
@@ -22,6 +24,9 @@ class MainWindow : public QMainWindow
 private:
     ControlPanel* controlPanel;
     Ui::MainWindow *ui;
+    Scanner *scan;
+    QTreeWidgetItem *parentTree;
+    void clearChildState(QTreeWidgetItem*,int);
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -36,7 +41,8 @@ signals:
 //    void mouseRelease(QMouseEvent *);
 public slots:
     void tryconnect();
-
+    void receiveScanRec(QVector<QString>*);
+    void treeItemChanged(QTreeWidgetItem*,int);
 protected:
     void keyPressEvent(QKeyEvent *);
     void keyReleaseEvent(QKeyEvent *);
@@ -47,6 +53,7 @@ protected:
 private slots:
     void on_conButton_clicked();
     void on_disConButton_clicked();
+    void on_change_clicked();
 };
 
 #endif // MAINWINDOW_H
