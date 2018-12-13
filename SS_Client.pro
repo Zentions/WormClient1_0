@@ -5,10 +5,12 @@
 #-------------------------------------------------
 QT       += core gui
 
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = WormClient1_0
 TEMPLATE = app
+RC_ICONS = client_icon.ico
 
 QT       += network
 SOURCES += main.cpp\

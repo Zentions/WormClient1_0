@@ -2,26 +2,31 @@
 #include "mainwindow.h"
 #include "values.h"
 #include <QMessageBox>
+#include <QProcess>
+#include <QList>
+#include <QHostAddress>
+#include <QHostInfo>
+#include <QNetworkInterface>
+#include <QAbstractSocket>
+
 ControlPanel::ControlPanel(QWidget *parent)
     : QWidget(parent)
 {
     setMouseTracking(true);
     server_screen_width  = -1;
     server_screen_height = -1;
-    image = new QImage("C:\\Users\\q\\Desktop\\paint\\1.bmp");
+    image = new QImage(".\\imgs\\2.jpg");
     frame_width  = 1000;
     frame_height = 600;
-    mapThread = new MapThread();
-    connect(mapThread, SIGNAL(sigRecvOk(char *, int)), this, SLOT(frameChanged(char *, int)));
-    mapThread->start();
 
 }
 void ControlPanel::startConnect()
 {
-    cmdThread = new CmdThread(addr, 5649);
+    cmdThread = new CmdThread(addr, 5649,this);
     connect(cmdThread, SIGNAL(notOnline()), this, SLOT(notOnlineError()));
    // else cmdThread->setIPandPort(addr,5649);
     connect(cmdThread, SIGNAL(totalTime(int)), this, SLOT(totalTimeSlot(int)));
+    connect(cmdThread, SIGNAL(receiveMapSig(char*,int)), this, SLOT(frameChanged(char*,int)));
     connect(cmdThread, SIGNAL(setServerScreenSize(int,int)), this, SLOT(gotServerScreenSize(int,int)));
     cmdThread->run();
 }
@@ -37,7 +42,6 @@ void ControlPanel::endConnect()
 {
     cmdThread->noRun();
 }
-
 
 void ControlPanel::wheelEvent(QWheelEvent *e)
 {
@@ -68,16 +72,94 @@ void ControlPanel::paintEvent(QPaintEvent *e)
     }
     QWidget::paintEvent(e);
 }
+
+
+QString ControlPanel::getIP()
+{
+    QString strIpAddress;
+    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
+    // 获取第一个本主机的IPv4地址
+    int nListSize = ipAddressesList.count();
+    for (int i = 0; i < nListSize; i++)
+    {
+        strIpAddress = ipAddressesList.at(i).toString();
+        if(strIpAddress.contains("192.168.2.")){
+            break;
+        }
+//           if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
+//               ipAddressesList.at(i).toIPv4Address()) {
+//               strIpAddress = ipAddressesList.at(i).toString();
+//           }
+     }
+     // 如果没有找到，则以本地IP地址为IP
+     if (strIpAddress.isEmpty())
+     {
+         strIpAddress = QHostAddress(QHostAddress::LocalHost).toString();
+     }
+     return strIpAddress;
+}
+
+void lookUpRecord(int index)
+{
+    QProcess p(0);
+    QString arg = "node web3Script.js -g ";
+    arg = arg + QString::number(index);
+    p.setWorkingDirectory("E:\\ethereum\\web3");
+    p.start("cmd", QStringList()<<"/c"<< arg);
+    p.waitForStarted();
+    p.waitForFinished();
+    QString strTemp=QString::fromLocal8Bit(p.readAllStandardOutput());
+    qDebug() << strTemp;
+}
+
+
+void newRecord(QString clientIP, QString serverIP, int time, int money)
+{
+    QProcess p(0);
+    QString arg = "node web3Script.js -n ";
+    arg = arg + clientIP + " " + serverIP + " "
+            + QString::number(time) +  " " + QString::number(money) ;
+    p.setWorkingDirectory("E:\\ethereum\\web3");
+    p.start("cmd", QStringList()<<"/c"<< arg);
+    p.waitForStarted();
+    p.waitForFinished();
+    QString strTemp=QString::fromLocal8Bit(p.readAllStandardOutput());
+    qDebug() << strTemp;
+}
+
+void sendTransaction(QString address, int money)
+{
+    QProcess p(0);
+    QString arg = "node web3Script.js -t ";
+    arg = arg + address + " " + QString::number(money) ;
+    p.setWorkingDirectory("E:\\ethereum\\web3");
+    p.start("cmd", QStringList()<<"/c"<< arg);
+    p.waitForStarted();
+    p.waitForFinished();
+    QString strTemp=QString::fromLocal8Bit(p.readAllStandardOutput());
+    qDebug() << strTemp;
+}
+
+
 void ControlPanel::totalTimeSlot(int total)
 {
+    int money = total / 10;
     int hour,minute,sec;
     sec = total%60;
     total /= 60;
     minute = total%60;
     total /= 60;
     hour = total;
-    QMessageBox::information(this,"温馨提示","您使用了"+QString::number(hour)+"时"+QString::number(minute)+"分"+QString::number(sec)+"秒");
+    QMessageBox::information(this,"温馨提示","您使用了"
+                             +QString::number(hour)+"时"
+                             +QString::number(minute)+"分"
+                             +QString::number(sec)+"秒,共计花费了"
+                             +QString::number(money)+" ETH。\n"
+                                                     "交易已发送，您可以在日志文件中查看详细情况");
+    qDebug() << "storedServerAcconut" << serverAcconut;
 
+    sendTransaction(serverAcconut, money);
+    newRecord(clientIP, serverIP, money, money);
 }
 uchar ControlPanel::translateKey(int key)
 {
@@ -151,6 +233,7 @@ void ControlPanel::keyPressEvent(QKeyEvent *e)
     int k = translateKey(e->key());
     if(k == 0)
         return;
+    qDebug()<<"press first";
     cmdThread->cmdKeyPress(k);
     e->ignore();
 }
@@ -176,10 +259,15 @@ void ControlPanel::keyReleaseSlot(QKeyEvent *e)
 {
     keyReleaseEvent(e);
 }
+long long last=0;
 void ControlPanel::mouseMoveEvent(QMouseEvent *e)
 {
     QWidget::mouseMoveEvent(e);
-    if(!control)
+    long long current = QDateTime::currentDateTime().toMSecsSinceEpoch();
+    bool more = (current-last)>40;
+   // qDebug()<<more<<" "<<last<<" "<<current;
+    last = current;
+    if(!control ||!more)
         return;
 
     if(server_screen_width < 0 || frame_width < 0)
@@ -222,7 +310,7 @@ void ControlPanel::mousePressEvent(QMouseEvent *e)
         return;
     int x = e->pos().x();
     int y = e->pos().y();
-    qDebug()<<"mousePress"<<x;
+//    qDebug()<<"mousePress"<<x;
     if(x >= frame_width || y >= frame_height)
         return;
     double off_x = (double)x / frame_width;

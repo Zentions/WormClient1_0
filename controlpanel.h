@@ -11,8 +11,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QWheelEvent>
-
-#include "mapthread.h"
+#include <QDateTime>
 #include "cmdthread.h"
 
 class ControlPanel : public QWidget
@@ -35,6 +34,7 @@ public:
     ~ControlPanel();
     void startConnect();
     void endConnect();
+    QString getIP();
 signals:
     void mouseMoveTo(int, int);
 

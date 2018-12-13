@@ -12,7 +12,7 @@ Scanner::Scanner(QObject *parent): QThread(parent)
                 (tempAdd.toString().contains("192.168.")||tempAdd.toString().contains("172.")||tempAdd.toString().contains("10.")))
         {
             needToProcess->append(tempAdd.toString());
-            qDebug()<<"d"<<tempAdd.toString();
+//            qDebug()<<"d"<<tempAdd.toString();
 
         }
     }
@@ -50,7 +50,9 @@ void Scanner::startScan()
                  socket->close();
              }
          }
-         emit finishScan(ipVec);
+
+
     }
+     emit finishScan(ipVec);
 
 }

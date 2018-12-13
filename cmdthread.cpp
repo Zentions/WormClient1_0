@@ -2,6 +2,7 @@
 #include <QDateTime>
 CmdThread::CmdThread(QString add, int p, QObject* parent) : QObject(parent)
 {
+    serverIP = add;
     address = add;
     port = p;
     control=false;
@@ -32,11 +33,11 @@ void CmdThread::newData()
 {
     while(true)
     {
-        int r = cmdSocket->read((char*)(cmd_buf + cmd_buf_fill), 8 - cmd_buf_fill);
+        int r = cmdSocket->read((char*)(cmd_buf + cmd_buf_fill), 48 - cmd_buf_fill);
         if(r <= 0)
             return;
         cmd_buf_fill += r;
-        if(cmd_buf_fill == 8)
+        if(cmd_buf_fill == 48)
         {
             newCommand();
             cmd_buf_fill = 0;
@@ -58,6 +59,10 @@ void CmdThread::newCommand()
         h += cmd_buf[4];
         emit setServerScreenSize(w, h);
         qDebug()<<"get server screen size:"<<w<<" "<<h;
+        for(int i=5;i<47;i++){
+            QChar temp = (QChar)cmd_buf[i];
+            serverAcconut += temp;
+        }
     }
 }
 
@@ -91,15 +96,21 @@ void CmdThread::connectSucceed()
 {
     qDebug()<<"connect succeed";
     control = true;
+    //建立图形通道
+    mapThread = new MapThread();
+    connect(mapThread, SIGNAL(sigRecvOk(char *, int)), this, SLOT(getMapSignal(char *, int)));
+    mapThread->start();
     errorNum = 0;
     QDateTime time = QDateTime::currentDateTime();   //获取当前时间
     start = time.toTime_t();
 
 }
-
+void CmdThread::getMapSignal(char *chars, int len)
+{
+    emit receiveMapSig(chars,len);
+}
 void CmdThread::cmdMouseMoveTo(int x, int y)
 {
-    qDebug()<<"mouse move to";
     if(control == false)
         return;
     uchar uc[8];

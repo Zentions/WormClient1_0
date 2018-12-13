@@ -8,3 +8,8 @@ int end=0;
 QString addr;
 int rq_width = 1001;
 int rq_height= 601;
+QString serverAcconut;
+
+QString clientIP;
+QString serverIP;
+

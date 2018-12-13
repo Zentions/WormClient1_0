@@ -1,0 +1,15 @@
+INPUT(
+./release\main.o
+./release\mainwindow.o
+./release\algo.o
+./release\cmdthread.o
+./release\mapthread.o
+./release\values.o
+./release\scanner.o
+./release\controlpanel.o
+./release\moc_mainwindow.o
+./release\moc_cmdthread.o
+./release\moc_mapthread.o
+./release\moc_scanner.o
+./release\moc_controlpanel.o
+);

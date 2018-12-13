@@ -1,0 +1,15 @@
+INPUT(
+./debug\main.o
+./debug\mainwindow.o
+./debug\algo.o
+./debug\cmdthread.o
+./debug\mapthread.o
+./debug\values.o
+./debug\scanner.o
+./debug\controlpanel.o
+./debug\moc_mainwindow.o
+./debug\moc_cmdthread.o
+./debug\moc_mapthread.o
+./debug\moc_scanner.o
+./debug\moc_controlpanel.o
+);
